@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Styled Hyperlinks Plug-in",
+  "version": "1.0",
+  "description": "Converts placeholders into styled hyperlinks dynamically.",
+  "permissions": ["scripting", "storage"],
+  "host_permissions": ["http://localhost:4200/home/*","https://localhost:5206/*","http://127.0.0.1:5500/index.html/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Activate Hyperlink Plugin"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:4200/home/*","http://127.0.0.1:5500/index.html/*"],
+      "js": ["temp.js"],
+      "run_at": "document_end"
+    }
+  ]
+}

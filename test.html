@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Popover with Table</title>
+    <style>
+      .popover {
+        position: absolute;
+        display: none;
+        background-color: #fff;
+        color: #333;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        font-size: 14px;
+        z-index: 1000;
+        max-width: 300px;
+      }
+      .popover table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .popover table th,
+      .popover table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .popover table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+      .trigger {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Popover with Table</h1>
+    <p>
+      Hover over the
+      <span class="trigger" data-id="1">Metro center</span> or the
+      <span class="trigger" data-id="2">Newberry Plaza</span> to see the popover.
+    </p>
+
+    <!-- Popover -->
+    <div class="popover" id="popover"></div>
+
+    <script>
+      const apiUrl = "http://localhost:5206/api/Property";
+      const popover = document.getElementById("popover");
+      const triggers = document.querySelectorAll(".trigger");
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("mouseover", (event) => {
+          const itemId = trigger.getAttribute("data-id");
+
+          fetch(`${apiUrl}?id=${itemId}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              const rows = Array.isArray(data)
+                ? data
+                    .map(
+                      (item) =>
+                        `<tr>
+                          <td>${item.id}</td>
+                          <td>${item.name}</td>
+                          <td>${item.rent}</td>
+                        </tr>`
+                    )
+                    .join("")
+                : "<tr><td colspan='3'>No data available</td></tr>";
+
+              popover.innerHTML = `
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Rent</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rows}
+                  </tbody>
+                </table>
+              `;
+
+              // Position and display the popover
+              popover.style.display = "block";
+              popover.style.left = `${event.pageX + 10}px`;
+              popover.style.top = `${event.pageY + 10}px`;
+            })
+            .catch((error) => {
+              console.error("Error fetching data:", error);
+              popover.innerHTML = "<p>Error fetching details.</p>";
+              popover.style.display = "block";
+              popover.style.left = `${event.pageX + 10}px`;
+              popover.style.top = `${event.pageY + 10}px`;
+            });
+        });
+
+        trigger.addEventListener("mouseout", () => {
+          popover.style.display = "none";
+        });
+      });
+    </script>
+  </body>
+</html>
